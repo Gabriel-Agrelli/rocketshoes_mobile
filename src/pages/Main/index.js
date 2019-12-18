@@ -1,8 +1,12 @@
-import React, {Component} from 'react';
-import {FlatList} from 'react-native';
+import React, { Component } from 'react';
+import { FlatList } from 'react-native';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import api from '../../services/api';
-import {formatPrice} from '../../utils/format';
+import { formatPrice } from '../../utils/format';
+
+import * as CartActions from '../../store/modules/cart/actions';
 
 import {
   Container,
@@ -36,16 +40,22 @@ class Main extends Component {
       proceFormatted: formatPrice(product.price),
     }));
 
-    this.setState({products: data});
+    this.setState({ products: data });
   };
 
-  renderProduct = ({item}) => {
+  handleAddProduct = product => {
+    const { addToCartRequest } = this.props;
+
+    addToCartRequest(product);
+  };
+
+  renderProduct = ({ item }) => {
     return (
       <Product key={item.id}>
-        <ProductImage source={{uri: item.image}} />
+        <ProductImage source={{ uri: item.image }} />
         <ProductTitle>{item.title}</ProductTitle>
         <ProductPrice>{item.price}</ProductPrice>
-        <AddButton>
+        <AddButton onPress={() => this.handleAddProduct(item)}>
           <ProductAmount>
             <Icon name="add-shopping-cart" color="#fff" size={20} />
             <ProductAmountText>2</ProductAmountText>
@@ -57,7 +67,7 @@ class Main extends Component {
   };
 
   render() {
-    const {products} = this.state;
+    const { products } = this.state;
 
     return (
       <Container>
@@ -74,4 +84,12 @@ class Main extends Component {
   }
 }
 
-export default Main;
+const mapStateToProps = state => ({});
+
+const mapDispatchToProps = dispatch =>
+  bindActionCreators(CartActions, dispatch);
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(Main);
