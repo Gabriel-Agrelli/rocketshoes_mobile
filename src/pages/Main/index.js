@@ -35,9 +35,11 @@ class Main extends Component {
   getProducts = async () => {
     const response = await api.get('/products');
 
+    console.tron.log(response);
+
     const data = response.data.map(product => ({
       ...product,
-      proceFormatted: formatPrice(product.price),
+      priceFormatted: formatPrice(product.price),
     }));
 
     this.setState({ products: data });
@@ -50,15 +52,17 @@ class Main extends Component {
   };
 
   renderProduct = ({ item }) => {
+    const { amount } = this.props;
+
     return (
       <Product key={item.id}>
         <ProductImage source={{ uri: item.image }} />
         <ProductTitle>{item.title}</ProductTitle>
-        <ProductPrice>{item.price}</ProductPrice>
+        <ProductPrice>{item.priceFormatted}</ProductPrice>
         <AddButton onPress={() => this.handleAddProduct(item)}>
           <ProductAmount>
             <Icon name="add-shopping-cart" color="#fff" size={20} />
-            <ProductAmountText>2</ProductAmountText>
+            <ProductAmountText>{amount[item.id] || 0}</ProductAmountText>
           </ProductAmount>
           <AddButtonText>ADICIONAR</AddButtonText>
         </AddButton>
@@ -84,12 +88,14 @@ class Main extends Component {
   }
 }
 
-const mapStateToProps = state => ({});
+const mapStateToProps = state => ({
+  amount: state.cart.reduce((amount, product) => {
+    amount[product.id] = product.amount;
+    return amount;
+  }, {}),
+});
 
 const mapDispatchToProps = dispatch =>
   bindActionCreators(CartActions, dispatch);
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(Main);
+export default connect(mapStateToProps, mapDispatchToProps)(Main);

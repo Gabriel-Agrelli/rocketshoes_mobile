@@ -26,7 +26,15 @@ import {
   EmptyText,
 } from './styles';
 
-function Cart({ products }) {
+function Cart({ products, total, removeFromCart, updateAmount }) {
+  function increment(product) {
+    updateAmount(product.id, product.amount + 1);
+  }
+
+  function decrement(product) {
+    updateAmount(product.id, product.amount - 1);
+  }
+
   return (
     <Container>
       {products.length ? (
@@ -40,7 +48,11 @@ function Cart({ products }) {
                     <Text>{product.title}</Text>
                     <ProductPrice>{product.priceFormatted}</ProductPrice>
                   </ProductDetails>
-                  <ProductDelete onPress={() => {}}>
+                  <ProductDelete
+                    onPress={() => {
+                      removeFromCart(product.id);
+                    }}
+                  >
                     <Icon
                       name="delete-forever"
                       size={24}
@@ -50,7 +62,7 @@ function Cart({ products }) {
                 </ProductInfo>
 
                 <ProductControls>
-                  <TouchableOpacity onPress={() => {}}>
+                  <TouchableOpacity onPress={() => decrement(product)}>
                     <Icon
                       name="remove-circle-outline"
                       size={20}
@@ -58,7 +70,7 @@ function Cart({ products }) {
                     />
                   </TouchableOpacity>
                   <ProductAmount value={String(product.amount)} />
-                  <TouchableOpacity onPress={() => {}}>
+                  <TouchableOpacity onPress={() => increment(product)}>
                     <Icon
                       name="add-circle-outline"
                       size={20}
@@ -73,7 +85,7 @@ function Cart({ products }) {
 
           <TotalContainer>
             <TotalText>TOTAL</TotalText>
-            <TotalAmount>{12}</TotalAmount>
+            <TotalAmount>{total}</TotalAmount>
             <Order>
               <OrderText>FINALIZAR PEDIDO</OrderText>
             </Order>
@@ -95,17 +107,14 @@ const mapStateToProps = state => ({
     subtotal: formatPrice(product.price * product.amount),
     priceFormatted: formatPrice(product.price),
   })),
-  // total: formatPrice(
-  //   state.cart.reduce((total, producut) => {
-  //     return total + producut.price * producut.amount;
-  //   }),
-  // ),
+  total: formatPrice(
+    state.cart.reduce((total, product) => {
+      return total + product.price * product.amount;
+    }, 0),
+  ),
 });
 
 const mapDispatchToProps = dispatch =>
   bindActionCreators(CartActions, dispatch);
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(Cart);
+export default connect(mapStateToProps, mapDispatchToProps)(Cart);
