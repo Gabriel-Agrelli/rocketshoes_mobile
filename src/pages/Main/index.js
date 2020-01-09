@@ -35,8 +35,6 @@ class Main extends Component {
   getProducts = async () => {
     const response = await api.get('/products');
 
-    console.tron.log(response);
-
     const data = response.data.map(product => ({
       ...product,
       priceFormatted: formatPrice(product.price),
@@ -45,10 +43,10 @@ class Main extends Component {
     this.setState({ products: data });
   };
 
-  handleAddProduct = product => {
+  handleAddProduct = id => {
     const { addToCartRequest } = this.props;
 
-    addToCartRequest(product);
+    addToCartRequest(id);
   };
 
   renderProduct = ({ item }) => {
@@ -59,7 +57,7 @@ class Main extends Component {
         <ProductImage source={{ uri: item.image }} />
         <ProductTitle>{item.title}</ProductTitle>
         <ProductPrice>{item.priceFormatted}</ProductPrice>
-        <AddButton onPress={() => this.handleAddProduct(item)}>
+        <AddButton onPress={() => this.handleAddProduct(item.id)}>
           <ProductAmount>
             <Icon name="add-shopping-cart" color="#fff" size={20} />
             <ProductAmountText>{amount[item.id] || 0}</ProductAmountText>
